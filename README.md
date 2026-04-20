@@ -1,144 +1,61 @@
-# 🧠 Stateful Chatbot Engine (No ML)
+🤖 Simple Chatbot AI
 
-A simple but robust chatbot designed to be predictable, debuggable, and memory-aware — without using machine learning.
+A lightweight rule-based chatbot built with clean architecture (no ML, no over-engineering).
 
-> 🎯 Philosophy: Don't make it smarter — make it fail less.
-
----
-
-## ❌ Problems I Faced
-
-While building earlier versions of this bot, I ran into several real-world issues:
-
-- ML model (LogisticRegression) misclassified intents due to small training data
-- Rule-based system with scoring + boosting became unpredictable
-- Different components (ML + rules + context) conflicted with each other
-- Context rewriting broke user intent
-- Over-engineering made debugging extremely difficult
-
-👉 Result: the bot became *less reliable* as complexity increased
-
----
-
-## ✅ Solution
-
-I redesigned the bot using a clean and minimal architecture:
-
-
-input
-→ normalize
-→ extract entities (regex)
-→ update state
-→ detect intent (simple rules)
-→ handler
-→ response
-
-
-No scoring. No ML. No hidden logic.
-
----
-
-## 🧩 Key Design Decisions
-
-### 1. Entity-first, but controlled
-- If user provides info → update state immediately
-- But do NOT override strong user intent
-
-### 2. No Machine Learning (yet)
-- Small datasets lead to unreliable predictions
-- Deterministic logic is easier to debug and control
-
-### 3. One responsibility per step
-- normalize → clean text
-- extract → get structured data
-- detect → find intent
-- handler → generate response
-
-### 4. Predictability over intelligence
-- The bot should behave consistently
-- Debugging should be straightforward
-
----
-
-## 🧠 Features
-
-### ✅ Memory (Stateful)
-- Remembers user name, age, feeling
-
-### ✅ Notes System
-
-/note I like coffee
+🚀 Features
+👤 Remembers your name and age
+😊 Detects feelings (sad, tired, hungry…)
+💬 Simple follow-up conversation
+🧠 Memory system:
+/note something
 /recall
-/reset
+❤️ Learns preferences:
+“I like coffee”
+“I hate mornings”
+🧠 Architecture
 
+Clean modular design:
 
-### ✅ Intent Handling
-- name
-- age
-- time
-- feeling
-- smalltalk
-
-### ✅ Clean fallback
-- Handles unknown input gracefully
-
----
-
-## 💬 Example
-
-
+ai/
+ ├── core.py        # main logic (fake_ai)
+ ├── state.py       # user state
+entities.py         # extract data from input
+handlers.py         # response logic
+storage.py          # save/load user
+main.py             # CLI app
+▶️ Run
+python main.py
+🧪 Test
+pytest
+💡 Example
 You: my name is Tu
 Bot: Nice to meet you, Tu!
 
-You: how old am I
-Bot: I don't know your age yet
+You: i am 30
+Bot: Got it, you are 30 years old.
 
-You: I am 30
-Bot: Got it, you are 30 years old
+You: i am sad
+Bot: What happened?
 
-You: what about me
-Bot: You're Tu, 30 years old
+You: work is stressful
+Bot: I understand. That can be tough.
+📌 Commands
+Command	Description
+/note something	save a note
+/recall	show memory
+/reset	clear memory
+💡 Philosophy
 
-You: /note I like coffee
-Bot: Noted: I like coffee
+Don't make the bot smarter — make it fail less.
 
-You: /recall
-Bot: Here's what I remember:
-
-I like coffee
-
----
-
-## ▶️ Run
-
-```bash
-python main.py
-🧪 Tests
-
-Basic tests are included:
-
-pytest
-🚀 Future Improvements
-Multi-turn conversation (controlled, not messy)
-Logging and debugging tools
-API version (FastAPI)
-Better intent coverage
-Optional ML (only with real data)
-🧠 What I Learned
-More complexity ≠ better system
-Mixing ML with rules without enough data is dangerous
-Clean architecture makes debugging much easier
-Real-world systems fail at integration points, not individual parts
-📌 Project Goal
-
-This project is not about building a "smart AI".
-
-It’s about building a reliable system.
-
-📎 Tech
+🔧 Tech
 Python
 Regex (entity extraction)
-Simple rule-based intent detection
-👤 Author
+Rule-based intent system
+🚀 Future Improvements
+Add controlled context system
+Improve multi-turn conversation
+Add ML when enough real data
+👨‍💻 Author
 
-Built as a learning project focused on system design, debugging, and clean architecture.
+Built as a learning project to practice clean architecture and chatbot design.
