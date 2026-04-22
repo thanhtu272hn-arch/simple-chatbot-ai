@@ -68,7 +68,13 @@
 </div>
 
 <script>
-    const user_id = "u1";
+// tạo user_id 1 lần
+let user_id = localStorage.getItem("user_id");
+
+if (!user_id) {
+  user_id = "u_" + Math.random().toString(36).substring(2, 8);
+  localStorage.setItem("user_id", user_id);
+}
 
  // =========================
  // ADD MESSAGE
