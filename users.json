@@ -1,0 +1,37 @@
+{
+  "u1": {
+    "user_name": "Tu",
+    "age": 35,
+    "feeling": "sad",
+    "history": [
+      {
+        "user": "hello",
+        "bot": "Hi Tu!"
+      },
+      {
+        "user": "whats my name",
+        "bot": "Your name is Tu"
+      }
+    ],
+    "notes": [],
+    "memory_patterns": [
+      "You like coffee"
+    ],
+    "conversation": {
+      "topic": null,
+      "step": null
+    }
+  },
+  "u2": {
+    "user_name": null,
+    "age": null,
+    "feeling": null,
+    "history": [],
+    "notes": [],
+    "memory_patterns": [],
+    "conversation": {
+      "topic": null,
+      "step": null
+    }
+  }
+}

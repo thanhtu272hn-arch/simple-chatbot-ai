@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Chatbot</title>
+
+    <style>
+        body {
+          font-family: Arial;
+          background: #f5f5f5;
+          display: flex;
+          justify-content: center;
+        }
+
+        .chat {
+          width: 400px;
+          background: white;
+          border-radius: 10px;
+          padding: 10px;
+          margin-top: 50px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .messages {
+          height: 400px;
+          overflow-y: auto;
+          border-bottom: 1px solid #ddd;
+          padding: 10px;
+        }
+
+        .msg {
+          animation: fadeIn 0.2s ease-in;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user {
+          background: #d1e7ff;
+          margin-left: auto;
+        }
+
+        .bot {
+          background: #e2ffe2;
+          margin-right: auto;
+        }
+
+        input {
+          width: 75%;
+          padding: 8px;
+        }
+
+        button {
+          padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat">
+    <div class="messages" id="messages"></div>
+
+    <input id="input" placeholder="Type a message..."/>
+    <button id="sendBtn">Send</button>
+</div>
+
+<script>
+    const user_id = "u1";
+
+ // =========================
+ // ADD MESSAGE
+ // =========================
+ function addMessage(text, sender) {
+   const div = document.createElement("div");
+   div.className = "msg " + sender;
+   div.innerText = text;
+
+   const box = document.getElementById("messages");
+   box.appendChild(div);
+
+   box.scrollTop = box.scrollHeight;
+
+   return div; // 👈 trả về để dùng tiếp
+ }
+
+ // =========================
+ // TYPING EFFECT
+ // =========================
+ function typeText(element, text, speed = 20) {
+   element.innerText = "";
+   let i = 0;
+
+   const interval = setInterval(() => {
+     element.innerText += text[i];
+     i++;
+
+     if (i >= text.length) {
+       clearInterval(interval);
+     }
+   }, speed);
+ }
+
+ // =========================
+ // SEND MESSAGE
+ // =========================
+ async function sendMessage() {
+   const input = document.getElementById("input");
+   const text = input.value;
+
+   if (!text) return;
+
+   addMessage(text, "user");
+   input.value = "";
+
+   // 👇 bot message placeholder
+   const botMsg = addMessage("", "bot");
+
+   try {
+     const res = await fetch("http://127.0.0.1:8000/chat", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json"
+       },
+       body: JSON.stringify({
+         user_id: user_id,
+         message: text
+       })
+     });
+
+     const data = await res.json();
+
+     // 👇 typing effect thay vì "..."
+     typeText(botMsg, data.reply || "No reply");
+
+   } catch (err) {
+     console.error(err);
+     botMsg.innerText = "Error connecting to server";
+   }
+ }
+
+ // =========================
+ // EVENTS
+ // =========================
+ document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+ document.getElementById("input").addEventListener("keypress", function(e) {
+   if (e.key === "Enter") {
+     sendMessage();
+   }
+ });
+</script>
+
+</body>
+</html>

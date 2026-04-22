@@ -95,7 +95,7 @@ def fake_ai(user_input, state):
         return f"Nice to meet you, {state['user_name']}!"
 
     if entities.get("age"):
-        return f"Got it, you are {state['age']} years old."
+        return f"Got it, noted."
 
     # 3. pattern
     pattern = extract_pattern(text)
