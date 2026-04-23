@@ -1,19 +1,20 @@
 import json
-import os
-from threading import Lock
-from state_manager import USER_STATES
+import threading
 
-FILE = "data.json"
-_lock = Lock()
+FILE = "users.json"
+_lock = threading.Lock()
 
+USER_STATES = {}  # ✅ đặt tại đây
 
 def load_all_users():
-    if not os.path.exists(FILE):
-        return {}
-    with open(FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
-
+    global USER_STATES
+    try:
+        with open(FILE, "r", encoding="utf-8") as f:
+            USER_STATES = json.load(f)
+    except:
+        USER_STATES = {}
 
 def save_all_users():
-    with open(FILE, "w", encoding="utf-8") as f:
-        json.dump(USER_STATES, f, indent=2)
+    with _lock:
+        with open(FILE, "w", encoding="utf-8") as f:
+            json.dump(USER_STATES, f, indent=2)

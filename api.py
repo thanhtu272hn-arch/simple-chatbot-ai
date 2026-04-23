@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 
 from ai.core import fake_ai
-from state_manager import get_user_state, save_state
+from state_manager import get_user_state
 import os
 from storage import save_all_users
 
