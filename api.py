@@ -20,8 +20,11 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 def chat(req: ChatRequest):
     state = get_user_state(req.user_id)
+
+    if "history" not in state:
+        state["history"] = []
+
     reply = fake_ai(req.message, state)
-    save_state()
 
     # 👉 lưu history
     state["history"].append({
