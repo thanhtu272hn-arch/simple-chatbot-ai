@@ -1,73 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Simple Chatbot</title>
-
-    <style>
-        #chat-box {
-  max-width: 600px;
-  margin: auto;
-  font-family: Arial;
-}
-
-.message {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 10px;
-}
-
-.user {
-  background: #d1e7dd;
-  text-align: right;
-}
-
-.bot {
-  background: #f8d7da;
-  text-align: left;
-}
-    </style>
-</head>
-
-<body>
-
-<div class="chat">
-    <div class="messages" id="messages"></div>
-    <div id="chat-box"></div>
-
-    <input id="input" placeholder="Type a message..."/>
-    <button id="sendBtn">Send</button>
-</div>
-
-<script>
-    // tạo user_id 1 lần
-    let user_id = localStorage.getItem("user_id");
-
-    if (!user_id) {
-      user_id = "u_" + Math.random().toString(36).substring(2, 8);
-      localStorage.setItem("user_id", user_id);
+  <title>Chatbot</title>
+  <style>
+    #chat-box {
+      max-width: 600px;
+      margin: auto;
+      font-family: Arial;
     }
 
-     // =========================
-     // ADD MESSAGE
-     // =========================
-     function addMessage(text, sender) {
-       const chatBox = document.getElementById("chat-box");
+    .message {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+    }
+
+    .user {
+      background: #d1e7dd;
+      text-align: right;
+    }
+
+    .bot {
+      background: #f8d7da;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-box"></div>
+
+<input id="input" placeholder="Type message..." />
+<button onclick="sendMessage()">Send</button>
+
+<script>
+let user_id = localStorage.getItem("user_id");
+
+if (!user_id) {
+  user_id = "u_" + Math.random().toString(36).substring(2, 8);
+  localStorage.setItem("user_id", user_id);
+}
+
+function addMessage(text, sender) {
+  const chatBox = document.getElementById("chat-box");
 
   const div = document.createElement("div");
   div.classList.add("message", sender);
   div.innerText = text;
 
   chatBox.appendChild(div);
-
-  // auto scroll
   chatBox.scrollTop = chatBox.scrollHeight;
-     }
+}
 
-// =========================
-     // LOADHISTORY
-     // =========================
-     async function loadHistory() {
+async function loadHistory() {
   const res = await fetch(`/history/${user_id}`);
   const history = await res.json();
 
@@ -75,34 +60,13 @@
     addMessage(msg.user, "user");
     addMessage(msg.bot, "bot");
   });
-     }
+}
 
-     // gọi khi load
-loadHistory();
-
-     // =========================
-     // TYPING EFFECT
-     // =========================
-     function typeText(element, text, speed = 20) {
-       element.innerText = "";
-       let i = 0;
-
-       const interval = setInterval(() => {
-         element.innerText += text[i];
-         i++;
-
-         if (i >= text.length) {
-           clearInterval(interval);
-         }
-       }, speed);
-     }
-
-     // =========================
-     // SEND MESSAGE
-     // =========================
-     async function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById("input");
   const text = input.value;
+
+  if (!text) return;
 
   addMessage(text, "user");
 
@@ -112,31 +76,17 @@ loadHistory();
     body: JSON.stringify({
       user_id: user_id,
       message: text
-           })
-         });
+    })
+  });
 
-         const data = await res.json();
+  const data = await res.json();
 
   addMessage(data.reply, "bot");
 
   input.value = "";
+}
 
-       } catch (err) {
-         console.error(err);
-         botMsg.innerText = "Error connecting to server";
-       }
-     }
-
-     // =========================
-     // EVENTS
-     // =========================
-     document.getElementById("sendBtn").addEventListener("click", sendMessage);
-
-     document.getElementById("input").addEventListener("keypress", function(e) {
-       if (e.key === "Enter") {
-         sendMessage();
-       }
-     });
+loadHistory();
 </script>
 
 </body>
