@@ -5,56 +5,27 @@
     <title>Simple Chatbot</title>
 
     <style>
-        body {
-          font-family: Arial;
-          background: #f5f5f5;
-          display: flex;
-          justify-content: center;
-        }
+        #chat-box {
+  max-width: 600px;
+  margin: auto;
+  font-family: Arial;
+}
 
-        .chat {
-          width: 400px;
-          background: white;
-          border-radius: 10px;
-          padding: 10px;
-          margin-top: 50px;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
+.message {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+}
 
-        .messages {
-          height: 400px;
-          overflow-y: auto;
-          border-bottom: 1px solid #ddd;
-          padding: 10px;
-        }
+.user {
+  background: #d1e7dd;
+  text-align: right;
+}
 
-        .msg {
-          animation: fadeIn 0.2s ease-in;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(5px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user {
-          background: #d1e7ff;
-          margin-left: auto;
-        }
-
-        .bot {
-          background: #e2ffe2;
-          margin-right: auto;
-        }
-
-        input {
-          width: 75%;
-          padding: 8px;
-        }
-
-        button {
-          padding: 8px;
-        }
+.bot {
+  background: #f8d7da;
+  text-align: left;
+}
     </style>
 </head>
 
@@ -62,101 +33,110 @@
 
 <div class="chat">
     <div class="messages" id="messages"></div>
+    <div id="chat-box"></div>
 
     <input id="input" placeholder="Type a message..."/>
     <button id="sendBtn">Send</button>
 </div>
 
 <script>
-// tạo user_id 1 lần
-let user_id = localStorage.getItem("user_id");
+    // tạo user_id 1 lần
+    let user_id = localStorage.getItem("user_id");
 
-if (!user_id) {
-  user_id = "u_" + Math.random().toString(36).substring(2, 8);
-  localStorage.setItem("user_id", user_id);
-}
+    if (!user_id) {
+      user_id = "u_" + Math.random().toString(36).substring(2, 8);
+      localStorage.setItem("user_id", user_id);
+    }
 
- // =========================
- // ADD MESSAGE
- // =========================
- function addMessage(text, sender) {
-   const div = document.createElement("div");
-   div.className = "msg " + sender;
-   div.innerText = text;
+     // =========================
+     // ADD MESSAGE
+     // =========================
+     function addMessage(text, sender) {
+       const chatBox = document.getElementById("chat-box");
 
-   const box = document.getElementById("messages");
-   box.appendChild(div);
+  const div = document.createElement("div");
+  div.classList.add("message", sender);
+  div.innerText = text;
 
-   box.scrollTop = box.scrollHeight;
+  chatBox.appendChild(div);
 
-   return div; // 👈 trả về để dùng tiếp
- }
-
- // =========================
- // TYPING EFFECT
- // =========================
- function typeText(element, text, speed = 20) {
-   element.innerText = "";
-   let i = 0;
-
-   const interval = setInterval(() => {
-     element.innerText += text[i];
-     i++;
-
-     if (i >= text.length) {
-       clearInterval(interval);
+  // auto scroll
+  chatBox.scrollTop = chatBox.scrollHeight;
      }
-   }, speed);
- }
 
- // =========================
- // SEND MESSAGE
- // =========================
- async function sendMessage() {
-   const input = document.getElementById("input");
-   const text = input.value;
+// =========================
+     // LOADHISTORY
+     // =========================
+     async function loadHistory() {
+  const res = await fetch(`/history/${user_id}`);
+  const history = await res.json();
 
-   if (!text) return;
+  history.forEach(msg => {
+    addMessage(msg.user, "user");
+    addMessage(msg.bot, "bot");
+  });
+     }
 
-   addMessage(text, "user");
-   input.value = "";
+     // gọi khi load
+loadHistory();
 
-   // 👇 bot message placeholder
-   const botMsg = addMessage("", "bot");
+     // =========================
+     // TYPING EFFECT
+     // =========================
+     function typeText(element, text, speed = 20) {
+       element.innerText = "";
+       let i = 0;
 
-   try {
-     const res = await fetch("/chat", {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json"
-       },
-       body: JSON.stringify({
-         user_id: user_id,
-         message: text
-       })
+       const interval = setInterval(() => {
+         element.innerText += text[i];
+         i++;
+
+         if (i >= text.length) {
+           clearInterval(interval);
+         }
+       }, speed);
+     }
+
+     // =========================
+     // SEND MESSAGE
+     // =========================
+     async function sendMessage() {
+  const input = document.getElementById("input");
+  const text = input.value;
+
+  addMessage(text, "user");
+
+  const res = await fetch("/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      user_id: user_id,
+      message: text
+           })
+         });
+
+         const data = await res.json();
+
+  addMessage(data.reply, "bot");
+
+  input.value = "";
+
+       } catch (err) {
+         console.error(err);
+         botMsg.innerText = "Error connecting to server";
+       }
+     }
+
+     // =========================
+     // EVENTS
+     // =========================
+     document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+     document.getElementById("input").addEventListener("keypress", function(e) {
+       if (e.key === "Enter") {
+         sendMessage();
+       }
      });
-
-     const data = await res.json();
-
-     // 👇 typing effect thay vì "..."
-     typeText(botMsg, data.reply || "No reply");
-
-   } catch (err) {
-     console.error(err);
-     botMsg.innerText = "Error connecting to server";
-   }
- }
-
- // =========================
- // EVENTS
- // =========================
- document.getElementById("sendBtn").addEventListener("click", sendMessage);
-
- document.getElementById("input").addEventListener("keypress", function(e) {
-   if (e.key === "Enter") {
-     sendMessage();
-   }
- });
 </script>
 
 </body>
