@@ -1,20 +1,42 @@
-import json
-import threading
+from database import get_conn
 
-FILE = "users.json"
-_lock = threading.Lock()
+def save_message(user_id, role, content):
+    conn = get_conn()
+    cursor = conn.cursor()
 
-USER_STATES = {}  # ✅ đặt tại đây
+    cursor.execute("""
+        INSERT INTO messages (user_id, role, content)
+        VALUES (?, ?, ?)
+    """, (user_id, role, content))
 
-def load_all_users():
-    global USER_STATES
-    try:
-        with open(FILE, "r", encoding="utf-8") as f:
-            USER_STATES = json.load(f)
-    except:
-        USER_STATES = {}
+    conn.commit()
+    conn.close()
 
-def save_all_users():
-    with _lock:
-        with open(FILE, "w", encoding="utf-8") as f:
-            json.dump(USER_STATES, f, indent=2)
+
+def load_history(user_id):
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT role, content
+        FROM messages
+        WHERE user_id = ?
+        ORDER BY id
+    """, (user_id,))
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [
+        {"role": r[0], "content": r[1]}
+        for r in rows
+    ]
+
+
+def clear_history(user_id):
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM messages WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
