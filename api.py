@@ -19,7 +19,9 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    reply = fake_ai(req.message)
+    history = load_history(req.user_id)
+
+    reply = fake_ai(req.message, history)
 
     save_message(req.user_id, "user", req.message)
     save_message(req.user_id, "bot", reply)
