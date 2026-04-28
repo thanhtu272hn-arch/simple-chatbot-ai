@@ -9,11 +9,10 @@ def get_conn():
 
 
 def init_db():
-    print("🛠️ INIT DB FILE:", DB_FILE)
-
     conn = get_conn()
     cursor = conn.cursor()
 
+    # 👇 bảng messages
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,6 +20,15 @@ def init_db():
         role TEXT,
         content TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # 👇 🔥 THÊM BẢNG NÀY
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_profile (
+        user_id TEXT PRIMARY KEY,
+        name TEXT,
+        age INTEGER
     )
     """)
 

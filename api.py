@@ -10,7 +10,7 @@ app = FastAPI()
 
 # init DB khi start
 init_db()
-
+print("🚨 RUNNING API.PY")
 
 class ChatRequest(BaseModel):
     user_id: str
