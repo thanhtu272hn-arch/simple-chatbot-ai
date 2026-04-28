@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from database import init_db
-from storage import save_message,load_history, clear_history, get_profile, save_profile
+from storage import save_message, load_history, clear_history, get_profile, save_profile
 from ai.fake_ai import fake_ai
 
 app = FastAPI()
@@ -15,6 +15,12 @@ init_db()
 class ChatRequest(BaseModel):
     user_id: str
     message: str
+
+
+@app.on_event("startup")
+def on_startup():
+    print("🔥 INIT DB")
+    init_db()
 
 
 @app.post("/chat")
