@@ -19,8 +19,9 @@ class ChatRequest(BaseModel):
 
 @app.on_event("startup")
 def on_startup():
-    print("🔥 INIT DB")
+    print("🔥 INIT DB START")
     init_db()
+    print("🔥 INIT DB DONE")
 
 
 @app.post("/chat")
