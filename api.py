@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from database import init_db
-from storage import save_message, load_history, clear_history
+from storage import save_message,load_history, clear_history, get_profile, save_profile
 from ai.fake_ai import fake_ai
 
 app = FastAPI()
@@ -19,9 +19,17 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    history = load_history(req.user_id)
+    profile = get_profile(req.user_id)
 
-    reply = fake_ai(req.message, history)
+    reply, memory_update = fake_ai(req.message, profile)
+
+    # 💾 save memory nếu có
+    if memory_update:
+        save_profile(
+            req.user_id,
+            name=memory_update.get("name"),
+            age=memory_update.get("age")
+        )
 
     save_message(req.user_id, "user", req.message)
     save_message(req.user_id, "bot", reply)

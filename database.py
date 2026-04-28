@@ -11,12 +11,10 @@ def init_db():
     cursor = conn.cursor()
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT,
-    role TEXT,          -- "user" hoặc "bot"
-    content TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    CREATE TABLE IF NOT EXISTS user_profile (
+    user_id TEXT PRIMARY KEY,
+    name TEXT,
+    age INTEGER
 );
     """)
 
