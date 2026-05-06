@@ -1,16 +1,17 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from mini_gpt import generate_reply, build_prompt
 
 from database import init_db
 from storage import save_message, load_history, clear_history, get_profile, save_profile
-from ai.fake_ai import fake_ai
 
 app = FastAPI()
 
 # init DB khi start
 init_db()
 print("🚨 RUNNING API.PY")
+
 
 class ChatRequest(BaseModel):
     user_id: str
@@ -26,17 +27,11 @@ def on_startup():
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    profile = get_profile(req.user_id)
+    history = load_history(req.user_id)
 
-    reply, memory_update = fake_ai(req.message, profile)
+    prompt = build_prompt(history, req.message)
 
-    # 💾 save memory nếu có
-    if memory_update:
-        save_profile(
-            req.user_id,
-            name=memory_update.get("name"),
-            age=memory_update.get("age")
-        )
+    reply = generate_reply(prompt)
 
     save_message(req.user_id, "user", req.message)
     save_message(req.user_id, "bot", reply)
